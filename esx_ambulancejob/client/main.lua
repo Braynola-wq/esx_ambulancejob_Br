@@ -764,7 +764,7 @@ end)
 
 RegisterNetEvent("esx_ambulancejob:Notify",function(message)
 	if(group) then
-		if(group == "superadmin" or group == "servermanagement") then
+		if(group == "owner" or group == "admin") then
 			TriggerEvent('chatMessage',message)
 		end
 	end

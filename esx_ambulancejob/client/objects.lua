@@ -242,7 +242,7 @@ PickUp = function(stretcherObject)
 	AttachEntityToEntity(stretcherObject, cache.ped, GetPedBoneIndex(cache.ped,  28422), -0.0, -1.2, -1.0, 195.0, 180.0, 180.0, 0.0, false, false, true, false, 2, true)
 
 	PickUpObject = stretcherObject
-	exports['qb-target']:AddGlobalVehicle({
+	exports.ox_target:addGlobalVehicle({
 		options = {
 		  {
 			type = "client",
