@@ -66,7 +66,7 @@ function OpenAmbulanceActionsMenu()
 			if identifier then
 				ESX.SEvent("esx_ambulancejob:AccessLocker")
 			else
-				ESX.ShowRGBNotification("error",".הפרטים שלך לא נמצאו, נסה מאוחר יותר")
+				TriggerEvent('br_notify:show', 'error', 'Error', ".הפרטים שלך לא נמצאו, נסה מאוחר יותר", 5000, false) -- ESX.ShowRGBNotification("error",".הפרטים שלך לא נמצאו, נסה מאוחר יותר")
 			end
 		elseif data.current.value == 'boss_actions' then
 			menu.close()
@@ -136,7 +136,7 @@ function OpenMobileAmbulanceActionsMenu()
 
 		local closestPlayer, closestDistance = ESX.Game.GetClosestPlayer()
 		if closestPlayer == -1 or closestDistance > 2.0 then
-			ESX.ShowRGBNotification("error",_U('no_players'))
+			TriggerEvent('br_notify:show', 'error', 'Error', _U('no_players'), 5000, false) -- ESX.ShowRGBNotification("error",_U('no_players'))
 		else
 			if action == 'small' or action == 'big' then
 				HealClosestPlayer(closestPlayer,action)
@@ -144,7 +144,7 @@ function OpenMobileAmbulanceActionsMenu()
 				if ESX.PlayerData.job.name == "ambulance" then
 					TriggerServerEvent('esx_ambulancejob:putInVehicle', GetPlayerServerId(closestPlayer))
 				else
-					ESX.ShowRGBNotification("error",".אתה לא בעבודה יותר, הפעולה נכשלה")
+					TriggerEvent('br_notify:show', 'error', 'Error', ".אתה לא בעבודה יותר, הפעולה נכשלה", 5000, false) -- ESX.ShowRGBNotification("error",".אתה לא בעבודה יותר, הפעולה נכשלה")
 				end
 			elseif action == 'custom_bill' then
 				DoCustomBill()
@@ -176,7 +176,7 @@ function FastTravel(coords, heading)
 			end)
 			PlaySoundFrontend(-1, "FAKE_ARRIVE", "MP_PROPERTIES_ELEVATOR_DOORS", true);
 		else
-			ESX.ShowRGBNotification("error",'רק שוטרים ומד"א יכולים להשתמש במעליות האלה')
+			TriggerEvent('br_notify:show', 'error', 'Error', 'רק שוטרים ומד"א יכולים להשתמש במעליות האלה', 5000, false) -- ESX.ShowRGBNotification("error",'רק שוטרים ומד"א יכולים להשתמש במעליות האלה')
 		end
 	end
 end
@@ -321,7 +321,7 @@ CreateThread(function()
 				exports.ox_target:addBoxZone({
 					name = "ambulance:teleport"..k,
 					coords = vector3(v.From.x, v.From.y, v.From.z),
-					size = vector3(1.1, 1.1, (v.From.z + 1) - (v.From.z - 1)), -- Calculate depth based on minZ and maxZ
+					size = vector3(1.1, 1.1, (v.From.z + 1) - (v.From.z - 1)),
 					rotation = v.From.w,
 					debug = false,
 					options = {
@@ -332,7 +332,7 @@ CreateThread(function()
 								if(v.jobs[ESX.PlayerData.job.name]) then
 									showElevator(v)
 								else
-									ESX.ShowHDNotification("","No Access to this elevator.","error")
+									TriggerEvent('br_notify:show', 'error', 'Error', "No Access to this elevator.", 5000, false) -- ESX.ShowHDNotification("","No Access to this elevator.","error")
 								end
 							end,
 							groups = v.jobs,
@@ -483,13 +483,13 @@ function WarpPedInClosestVehicle(ped)
 			SetPedIntoVehicle(ped, vehicle, freeSeat)
 		end
 	else
-		ESX.ShowNotification(_U('no_vehicles'))
+		TriggerEvent('br_notify:show', 'info', 'Notification', _U('no_vehicles'), 5000, false) -- ESX.ShowNotification(_U('no_vehicles'))
 	end
 end
 
 RegisterNetEvent('esx_ambulancejob:heal')
 AddEventHandler('esx_ambulancejob:heal', function(healType, quiet)
-	if(ESX.HitRecently()) then ESX.ShowRGBNotification("error","אתה נפצעת לאחרונה ולא יכול לקבל טיפול רפואי") return end
+	if(ESX.HitRecently()) then TriggerEvent('br_notify:show', 'error', 'Error', "אתה נפצעת לאחרונה ולא יכול לקבל טיפול רפואי", 5000, false) return end -- ESX.ShowRGBNotification("error","אתה נפצעת לאחרונה ולא יכול לקבל טיפול רפואי") return end
 	local playerPed = PlayerPedId()
 	local maxHealth = GetEntityMaxHealth(playerPed)
 
@@ -502,7 +502,7 @@ AddEventHandler('esx_ambulancejob:heal', function(healType, quiet)
 	end
 
 	if not quiet then
-		ESX.ShowNotification(_U('healed'))
+		TriggerEvent('br_notify:show', 'info', 'Notification', _U('healed'), 5000, false) -- ESX.ShowNotification(_U('healed'))
 	end
 end)
 
@@ -562,7 +562,7 @@ local spawnRadius = 80.0
 function SpawnVehicle(vehhash)
 
 	if(lastcar and (GetTimeDifference(GetGameTimer(), lastcar) < 600000)) then
-		ESX.ShowNotification('אתה יכול להזמין לאמבולנס כל עשר דקות')
+		TriggerEvent('br_notify:show', 'info', 'Notification', 'אתה יכול להזמין לאמבולנס כל עשר דקות', 5000, false) -- ESX.ShowNotification('אתה יכול להזמין לאמבולנס כל עשר דקות')
 		return
 	end
 
@@ -580,69 +580,82 @@ function SpawnVehicle(vehhash)
 	local playerPed = PlayerPedId()
 	TaskPlayAnim(playerPed,"random@arrests","generic_radio_chatter", 8.0, 0.0, -1, 49, 0, 0, 0, 0);
 	ESX.SEvent('InteractSound_SV:PlayWithinDistance', 1.5, 'backup', 0.9)
-	exports['progressBars']:startUI(1000, "מזמין אמבולנס")
-	Citizen.Wait(1000)
-	StopAnimTask(playerPed, "random@arrests","generic_radio_chatter", -4.0)
-	RemoveAnimDict("random@arrests")
-	ESX.ShowNotification('אמבולנס בדרך')
 
-	local driverhash = joaat("s_m_m_paramedic_01")
-	RequestModel(vehhash)
-	RequestModel(driverhash)
-	while not HasModelLoaded(vehhash) and not HasModelLoaded(driverhash) do
-		Citizen.Wait(0)
+    local progressBarSuccess = lib.progressBar({
+        duration = 1000,
+        label = "מזמין אמבולנס",
+        useWhileDead = false,
+        canCancel = false
+    })
+
+	if progressBarSuccess then
+		StopAnimTask(playerPed, "random@arrests","generic_radio_chatter", -4.0)
+		RemoveAnimDict("random@arrests")
+		TriggerEvent('br_notify:show', 'info', 'Notification', 'אמבולנס בדרך', 5000, false) -- ESX.ShowNotification('אמבולנס בדרך')
+
+		local driverhash = joaat("s_m_m_paramedic_01")
+		RequestModel(vehhash)
+		RequestModel(driverhash)
+		while not HasModelLoaded(vehhash) and not HasModelLoaded(driverhash) do
+			Citizen.Wait(0)
+		end
+
+		ESX.TriggerServerCallback("esx_policejob:server:SpawnNayedet",function(netid,pednet)
+			if not netid or type(netid) == "boolean" then
+				lastcar = nil
+				SetModelAsNoLongerNeeded(vehhash)
+				SetModelAsNoLongerNeeded(driverhash)
+				TriggerEvent('br_notify:show', 'warning', 'Delivery Failed', "הזמנת הניידת נכשלה, נסה שוב", 5000, false) -- xPlayer.showHDNotification("Delivery Failed","הזמנת הניידת נכשלה, נסה שוב","warning")
+				return
+			end
+			local callback_vehicle = ESX.Game.VerifyEnt(netid)
+			if not callback_vehicle then
+				SetModelAsNoLongerNeeded(vehhash)
+				SetModelAsNoLongerNeeded(driverhash)
+				TriggerEvent('br_notify:show', 'error', 'Error', "שיגור הרכב כשל", 5000, false) -- ESX.ShowRGBNotification("error","שיגור הרכב כשל")
+			end
+			fizzPed = ESX.Game.VerifyEnt(pednet)
+			if(not DoesEntityExist(fizzPed)) then
+				TriggerEvent('br_notify:show', 'error', 'Error', "שיגור הרכב כשל 2", 5000, false) -- ESX.ShowRGBNotification("error","שיגור הרכב כשל 2")
+				return
+			end
+			SetEntityLoadCollisionFlag(callback_vehicle,true)
+			SetVehRadioStation(callback_vehicle, "OFF")
+			ESX.SEvent('esx_policejob:paymoney',500)
+			SetModelAsNoLongerNeeded(vehhash)
+			SetModelAsNoLongerNeeded(driverhash)
+			local pedid = pednet
+			SetNetworkIdCanMigrate(pedid,false)
+			SetBlockingOfNonTemporaryEvents(fizzPed, true)
+			SetPedCanRagdollFromPlayerImpact(fizzPed,false)
+			SetEntityAsMissionEntity(fizzPed, true, true)
+			SetEntityInvincible(fizzPed, true)
+			SetVehicleDoorsLocked(callback_vehicle, 2)
+			SetVehicleSiren(callback_vehicle,true)
+			carblip = AddBlipForEntity(callback_vehicle)
+			SetBlipSprite(carblip, 42)
+			SetBlipScale(carblip, 0.8)
+			BeginTextCommandSetBlipName('STRING')
+			AddTextComponentString("Ambulance Delivery")
+			EndTextCommandSetBlipName(carblip)
+			local plate = exports['okokVehicleShop']:GeneratePlate()
+			SetVehicleNumberPlateText(callback_vehicle,plate)
+			TriggerEvent('cl_carlock:givekey',plate,false)
+			ESX.SEvent("esx_policejob:CacheVeh",ESX.Math.Trim(GetVehicleNumberPlateText(callback_vehicle)))
+			ClearAreaOfVehicles(GetEntityCoords(callback_vehicle), 4.0, false, false, false, false, false);
+			SetVehicleOnGroundProperly(callback_vehicle)
+			inVehicle = true
+			TaskVehicle(callback_vehicle)
+			RemoveBlip(carblip)
+		end,var2,vehhash)
+	else
+		-- Progress bar cancelled or failed
+		StopAnimTask(playerPed, "random@arrests","generic_radio_chatter", -4.0)
+		RemoveAnimDict("random@arrests")
+		TriggerEvent('br_notify:show', 'info', 'Notification', 'הזמנה בוטלה', 5000, false)
+		lastcar = nil
+		return
 	end
-
-	ESX.TriggerServerCallback("esx_policejob:server:SpawnNayedet",function(netid,pednet)
-		if not netid or type(netid) == "boolean" then
-			lastcar = nil
-			SetModelAsNoLongerNeeded(vehhash)
-			SetModelAsNoLongerNeeded(driverhash)
-			xPlayer.showHDNotification("Delivery Failed","הזמנת הניידת נכשלה, נסה שוב","warning")
-			return
-		end
-		local callback_vehicle = ESX.Game.VerifyEnt(netid)
-		if not callback_vehicle then
-			SetModelAsNoLongerNeeded(vehhash)
-			SetModelAsNoLongerNeeded(driverhash)
-			ESX.ShowRGBNotification("error","שיגור הרכב כשל")
-		end
-		fizzPed = ESX.Game.VerifyEnt(pednet)
-		if(not DoesEntityExist(fizzPed)) then
-			ESX.ShowRGBNotification("error","שיגור הרכב כשל 2")
-			return
-		end
-		SetEntityLoadCollisionFlag(callback_vehicle,true)
-		SetVehRadioStation(callback_vehicle, "OFF")
-		ESX.SEvent('esx_policejob:paymoney',500)
-		SetModelAsNoLongerNeeded(vehhash)
-		SetModelAsNoLongerNeeded(driverhash)
-		local pedid = pednet
-		SetNetworkIdCanMigrate(pedid,false)
-		SetBlockingOfNonTemporaryEvents(fizzPed, true)
-		SetPedCanRagdollFromPlayerImpact(fizzPed,false)
-		SetEntityAsMissionEntity(fizzPed, true, true)
-		SetEntityInvincible(fizzPed, true)
-		SetVehicleDoorsLocked(callback_vehicle, 2)
-		SetVehicleSiren(callback_vehicle,true)
-		carblip = AddBlipForEntity(callback_vehicle)
-		SetBlipSprite(carblip, 42)
-		SetBlipScale(carblip, 0.8)
-		BeginTextCommandSetBlipName('STRING')
-		AddTextComponentString("Ambulance Delivery")
-		EndTextCommandSetBlipName(carblip)
-		local plate = exports['okokVehicleShop']:GeneratePlate()
-		SetVehicleNumberPlateText(callback_vehicle,plate)
-		TriggerEvent('cl_carlock:givekey',plate,false)
-		ESX.SEvent("esx_policejob:CacheVeh",ESX.Math.Trim(GetVehicleNumberPlateText(callback_vehicle)))
-		ClearAreaOfVehicles(GetEntityCoords(callback_vehicle), 4.0, false, false, false, false, false);
-		SetVehicleOnGroundProperly(callback_vehicle)
-		inVehicle = true
-		TaskVehicle(callback_vehicle)
-		RemoveBlip(carblip)
-
-	end,var2,vehhash)
-
 end
 
 function TaskVehicle(vehicle)
@@ -736,7 +749,7 @@ RegisterCommand('mmivhan',function()
 	local closestPlayer, closestDistance = ESX.Game.GetClosestPlayer()
 
 	if closestPlayer == -1 or closestDistance > 3.0 then
-		ESX.ShowNotification("לא נמצא שחקן באיזור")
+		TriggerEvent('br_notify:show', 'info', 'Notification', "לא נמצא שחקן באיזור", 5000, false) -- ESX.ShowNotification("לא נמצא שחקן באיזור")
 		return
 	end
 
@@ -763,13 +776,13 @@ RegisterCommand('mmivhan',function()
 					local closestPlayer, closestDistance = ESX.Game.GetClosestPlayer()
 
 					if closestPlayer == -1 or closestDistance > 3.0 then
-						ESX.ShowNotification("לא נמצא שחקן באיזור")
+						TriggerEvent('br_notify:show', 'info', 'Notification', "לא נמצא שחקן באיזור", 5000, false) -- ESX.ShowNotification("לא נמצא שחקן באיזור")
 					else
 						ESX.SEvent('esx_ambulancejob:SendTest',GetPlayerServerId(closestPlayer),var1,var2,var3,var4,var5)
-						ESX.ShowHDNotification("SUCCESS","הדוח נשלח בהצלחה",'success')
+						TriggerEvent('br_notify:show', 'success', 'SUCCESS', "הדוח נשלח בהצלחה", 5000, false) -- ESX.ShowHDNotification("SUCCESS","הדוח נשלח בהצלחה",'success')
 					end
 				else
-					ESX.ShowNotification('יש למלא את כל הפרטים')
+					TriggerEvent('br_notify:show', 'info', 'Notification', 'יש למלא את כל הפרטים', 5000, false) -- ESX.ShowNotification('יש למלא את כל הפרטים')
 				end
 			end
 		end
@@ -779,13 +792,13 @@ end)
 
 function BodyBag(entity)
 	if(not DoesEntityExist(entity)) then
-		ESX.ShowHDNotification("מגן דוד אדום","לא נמצא הגופה","ambulance")
+		TriggerEvent('br_notify:show', 'info', 'מגן דוד אדום', "לא נמצא הגופה", 5000, false) -- ESX.ShowHDNotification("מגן דוד אדום","לא נמצא הגופה","ambulance")
 		return
 	end
 	local ped = PlayerPedId()
 	local entcoords = GetEntityCoords(entity)
 	if #(GetEntityCoords(ped) - GetEntityCoords(entity)) > 3.0 then
-		ESX.ShowHDNotification("מגן דוד אדום","הגופה רחוקה מדי","ambulance")
+		TriggerEvent('br_notify:show', 'info', 'מגן דוד אדום', "הגופה רחוקה מדי", 5000, false) -- ESX.ShowHDNotification("מגן דוד אדום","הגופה רחוקה מדי","ambulance")
 		return
 	end
 	TaskStartScenarioInPlace(ped, 'CODE_HUMAN_MEDIC_TEND_TO_DEAD', 0, true)
@@ -819,23 +832,23 @@ function BodyBag(entity)
 				DeletePed(entity)
 			end
 			ESX.Game.DeleteObject(obj)
-			ESX.ShowHDNotification("מגן דוד אדום","כיסית את הגופה בהצלחה","ambulance")
+			TriggerEvent('br_notify:show', 'info', 'מגן דוד אדום', "כיסית את הגופה בהצלחה", 5000, false) -- ESX.ShowHDNotification("מגן דוד אדום","כיסית את הגופה בהצלחה","ambulance")
 			if(var2) then
 				if ESX.PlayerData.job.name == "ambulance" then
 					ESX.SEvent("esx_ambulancejob:BodyBag",var2)
 				else
-					ESX.ShowRGBNotification("error",".אתה לא בעבודה יותר, הפעולה נכשלה")
+					TriggerEvent('br_notify:show', 'error', 'Error', ".אתה לא בעבודה יותר, הפעולה נכשלה", 5000, false) -- ESX.ShowRGBNotification("error",".אתה לא בעבודה יותר, הפעולה נכשלה")
 				end
 			else
-				ESX.ShowNotification(".תקלה, נסה שוב","error")
+				TriggerEvent('br_notify:show', 'error', 'Error', ".תקלה, נסה שוב", 5000, false) -- ESX.ShowNotification(".תקלה, נסה שוב","error")
 			end
 		else
 			ESX.Game.DeleteObject(obj)
-			ESX.ShowHDNotification("מגן דוד אדום","לא נמצא הגופה","ambulance")
+			TriggerEvent('br_notify:show', 'info', 'מגן דוד אדום', "לא נמצא הגופה", 5000, false) -- ESX.ShowHDNotification("מגן דוד אדום","לא נמצא הגופה","ambulance")
 		end
 	else
 		ESX.Game.DeleteObject(obj)
-		ESX.ShowHDNotification("מגן דוד אדום","נכשלת בלכסות את הגופה","ambulance")
+		TriggerEvent('br_notify:show', 'info', 'מגן דוד אדום', "נכשלת בלכסות את הגופה", 5000, false) -- ESX.ShowHDNotification("מגן דוד אדום","נכשלת בלכסות את הגופה","ambulance")
 	end
 
 end
@@ -843,7 +856,7 @@ end
 function HealClosestPlayer(closestPlayer,type)
 
 	if(IsPedInAnyVehicle(PlayerPedId(),false)) then
-		ESX.ShowHDNotification('מד"א',"אתה לא יכול לבצע פעולה זו כשאתה ברכב","ambulance")
+		TriggerEvent('br_notify:show', 'info', 'מד"א', "אתה לא יכול לבצע פעולה זו כשאתה ברכב", 5000, false) -- ESX.ShowHDNotification('מד"א',"אתה לא יכול לבצע פעולה זו כשאתה ברכב","ambulance")
 		return
 	end
 	local item = type == "small" and "bandage" or "medikit"
@@ -855,7 +868,7 @@ function HealClosestPlayer(closestPlayer,type)
 			local playerPed = PlayerPedId()
 
 			isBusy = true
-			ESX.ShowRGBNotification("info",_U('heal_inprogress'))
+			TriggerEvent('br_notify:show', 'info', 'Info', _U('heal_inprogress'), 5000, false) -- ESX.ShowRGBNotification("info",_U('heal_inprogress'))
 			TaskStartScenarioInPlace(playerPed, 'CODE_HUMAN_MEDIC_TEND_TO_DEAD', 0, true)
 			TriggerEvent("gi-3dme:network:mecmd","חובש פצעים")
 			Citizen.Wait(10000)
@@ -864,16 +877,16 @@ function HealClosestPlayer(closestPlayer,type)
 			if ESX.PlayerData.job.name == "ambulance" then
 				TriggerServerEvent('esx_ambulancejob:removeItem', item)
 				TriggerServerEvent('esx_ambulancejob:heal', GetPlayerServerId(closestPlayer), type)
-				ESX.ShowRGBNotification("success",_U('heal_complete', GetPlayerName(closestPlayer)))
+				TriggerEvent('br_notify:show', 'success', 'Success', _U('heal_complete', GetPlayerName(closestPlayer)), 5000, false) -- ESX.ShowRGBNotification("success",_U('heal_complete', GetPlayerName(closestPlayer)))
 			else
-				ESX.ShowRGBNotification("error",".אתה לא בעבודה יותר, הפעולה נכשלה")
+				TriggerEvent('br_notify:show', 'error', 'Error', ".אתה לא בעבודה יותר, הפעולה נכשלה", 5000, false) -- ESX.ShowRGBNotification("error",".אתה לא בעבודה יותר, הפעולה נכשלה")
 			end
 			isBusy = false
 		else
-			ESX.ShowRGBNotification("error",_U('player_not_conscious'))
+			TriggerEvent('br_notify:show', 'error', 'Error', _U('player_not_conscious'), 5000, false) -- ESX.ShowRGBNotification("error",_U('player_not_conscious'))
 		end
 	else
-		ESX.ShowRGBNotification("error",_U('not_enough_medikit'))
+		TriggerEvent('br_notify:show', 'error', 'Error', _U('not_enough_medikit'), 5000, false) -- ESX.ShowRGBNotification("error",_U('not_enough_medikit'))
 	end
 
 
@@ -881,7 +894,7 @@ end
 
 function ReviveClosestPlayer(closestPlayer)
 	if(IsPedInAnyVehicle(PlayerPedId(),false)) then
-		ESX.ShowHDNotification('מד"א',"אתה לא יכול לבצע פעולה זו כשאתה ברכב","ambulance")
+		TriggerEvent('br_notify:show', 'info', 'מד"א', "אתה לא יכול לבצע פעולה זו כשאתה ברכב", 5000, false) -- ESX.ShowHDNotification('מד"א',"אתה לא יכול לבצע פעולה זו כשאתה ברכב","ambulance")
 		return
 	end
 	isBusy = true
@@ -890,7 +903,7 @@ function ReviveClosestPlayer(closestPlayer)
 	local reviveanim = "cpr_pumpchest"
 
 	if IsEntityPlayingAnim(PlayerPedId(), revivedict, reviveanim, 3) then
-		ESX.ShowRGBNotification("error","אתה כבר מבצע החייאה")
+		TriggerEvent('br_notify:show', 'error', 'Error', "אתה כבר מבצע החייאה", 5000, false) -- ESX.ShowRGBNotification("error","אתה כבר מבצע החייאה")
 		isBusy = false
 		return
 	end
@@ -900,7 +913,7 @@ function ReviveClosestPlayer(closestPlayer)
 
 		local closestPlayerPed = GetPlayerPed(closestPlayer)
 		if IsPedDeadOrDying(closestPlayerPed, 1) or Player(GetPlayerServerId(closestPlayer)).state.down then
-			ESX.ShowHelpNotification("Press ~INPUT_CONTEXT~ To ~y~Revive~w~ This ~r~Person~w~")
+			TriggerEvent('br_notify:show', 'info', 'Help', "Press ~INPUT_CONTEXT~ To ~y~Revive~w~ This ~r~Person~w~", 5000, false) -- ESX.ShowHelpNotification("Press ~INPUT_CONTEXT~ To ~y~Revive~w~ This ~r~Person~w~")
 			local Minigame = ESX.SpamBar({
 				centermsg = "Spam [E] To Revive This Person",
 				score = math.random(1500,2000),
@@ -915,10 +928,10 @@ function ReviveClosestPlayer(closestPlayer)
 			})
 
 			if(Minigame) then
-				ESX.ShowHDNotification("מגן דוד אדום","ביצעת את ההחייאה בהצלחה","ambulance")
+				TriggerEvent('br_notify:show', 'info', 'מגן דוד אדום', "ביצעת את ההחייאה בהצלחה", 5000, false) -- ESX.ShowHDNotification("מגן דוד אדום","ביצעת את ההחייאה בהצלחה","ambulance")
 				local playerPed = PlayerPedId()
 
-				ESX.ShowNotification(_U('revive_inprogress'))
+				TriggerEvent('br_notify:show', 'info', 'Notification', _U('revive_inprogress'), 5000, false) -- ESX.ShowNotification(_U('revive_inprogress'))
 				TriggerEvent("gi-3dme:network:mecmd","מבצע החייאה")
 
 
@@ -938,29 +951,29 @@ function ReviveClosestPlayer(closestPlayer)
 							TriggerServerEvent('esx_ambulancejob:removeItem', 'medikit')
 							TriggerServerEvent('esx_ambulancejob:revive', GetPlayerServerId(closestPlayer))
 						else
-							ESX.ShowRGBNotification("error",".אתה לא בעבודה יותר, הפעולה נכשלה")
+							TriggerEvent('br_notify:show', 'error', 'Error', ".אתה לא בעבודה יותר, הפעולה נכשלה", 5000, false) -- ESX.ShowRGBNotification("error",".אתה לא בעבודה יותר, הפעולה נכשלה")
 						end
 
 						if Config.ReviveReward > 0 then
-							ESX.ShowNotification(_U('revive_complete_award', GetPlayerName(closestPlayer), Config.ReviveReward))
+							TriggerEvent('br_notify:show', 'info', 'Notification', _U('revive_complete_award', GetPlayerName(closestPlayer), Config.ReviveReward), 5000, false) -- ESX.ShowNotification(_U('revive_complete_award', GetPlayerName(closestPlayer), Config.ReviveReward))
 						else
-							ESX.ShowNotification(_U('revive_complete', GetPlayerName(closestPlayer)))
+							TriggerEvent('br_notify:show', 'info', 'Notification', _U('revive_complete', GetPlayerName(closestPlayer)), 5000, false) -- ESX.ShowNotification(_U('revive_complete', GetPlayerName(closestPlayer)))
 						end
 					else
-						ESX.ShowHDNotification("מגן דוד אדום","האזרח לא פצוע יותר","ambulance")
+						TriggerEvent('br_notify:show', 'info', 'מגן דוד אדום', "האזרח לא פצוע יותר", 5000, false) -- ESX.ShowHDNotification("מגן דוד אדום","האזרח לא פצוע יותר","ambulance")
 					end
 					ClearPedTasksImmediately(playerPed)
 				end, function()
 					ClearPedTasksImmediately(playerPed)
 				end)
 			else
-				ESX.ShowHDNotification("מגן דוד אדום","נכשלת בהחייאה","ambulance")
+				TriggerEvent('br_notify:show', 'info', 'מגן דוד אדום', "נכשלת בהחייאה", 5000, false) -- ESX.ShowHDNotification("מגן דוד אדום","נכשלת בהחייאה","ambulance")
 			end
 		else
-			ESX.ShowRGBNotification("error",_U('player_not_conscious'))
+			TriggerEvent('br_notify:show', 'error', 'Error', _U('player_not_conscious'), 5000, false) -- ESX.ShowRGBNotification("error",_U('player_not_conscious'))
 		end
 	else
-		ESX.ShowRGBNotification("error",_U('not_enough_medikit'))
+		TriggerEvent('br_notify:show', 'error', 'Error', _U('not_enough_medikit'), 5000, false) -- ESX.ShowRGBNotification("error",_U('not_enough_medikit'))
 	end
 
 	isBusy = false
@@ -981,14 +994,14 @@ function DoCustomBill()
 
 			if reason and amount then
 				if amount == nil then
-					ESX.ShowNotification("כמות שגויה")
+					TriggerEvent('br_notify:show', 'info', 'Notification', "כמות שגויה", 5000, false) -- ESX.ShowNotification("כמות שגויה")
 				elseif amount > 60000 then
-					ESX.ShowNotification('הסכום המקסימלי הוא 60,000 שקל בלבד')
+					TriggerEvent('br_notify:show', 'info', 'Notification', 'הסכום המקסימלי הוא 60,000 שקל בלבד', 5000, false) -- ESX.ShowNotification('הסכום המקסימלי הוא 60,000 שקל בלבד')
 				else
 					ESX.UI.Menu.CloseAll()
 					local closestPlayer, closestDistance = ESX.Game.GetClosestPlayer()
 					if closestPlayer == -1 or closestDistance > 3.0 then
-						ESX.ShowNotification(_U('no_players'))
+						TriggerEvent('br_notify:show', 'info', 'Notification', _U('no_players'), 5000, false) -- ESX.ShowNotification(_U('no_players'))
 					else
 						local invoice = {}
 						invoice.invoice_notes = reason
@@ -1003,13 +1016,13 @@ function DoCustomBill()
 					end
 				end
 			else
-				ESX.ShowNotification('יש לציין את סכום הדוח וסיבת הדוח')
+				TriggerEvent('br_notify:show', 'info', 'Notification', 'יש לציין את סכום הדוח וסיבת הדוח', 5000, false) -- ESX.ShowNotification('יש לציין את סכום הדוח וסיבת הדוח')
 			end
 		end
 
 
 	else
-		ESX.ShowNotification('רק דרגת מג"ר ומעלה יכולים לבצע פעולה זו')
+		TriggerEvent('br_notify:show', 'info', 'Notification', 'רק דרגת מג"ר ומעלה יכולים לבצע פעולה זו', 5000, false) -- ESX.ShowNotification('רק דרגת מג"ר ומעלה יכולים לבצע פעולה זו')
 	end
 
 end
@@ -1028,15 +1041,15 @@ function ScanVeh()
 					lastscan = GetGameTimer()
 					TriggerServerEvent('esx_policejob:ScanVeh',ESX.Math.Trim(GetVehicleNumberPlateText(vehicle)))
 				else
-					ESX.ShowHDNotification("ERROR","נא להמתין 5 שניות בין כל סריקה",'error')
+					TriggerEvent('br_notify:show', 'error', 'ERROR', "נא להמתין 5 שניות בין כל סריקה", 5000, false) -- ESX.ShowHDNotification("ERROR","נא להמתין 5 שניות בין כל סריקה",'error')
 				end
 			else
 				ESX.UI.Menu.CloseAll()
-				ESX.ShowHDNotification("ERROR","הרכב שנבחר אינו משטרתי",'error')
+				TriggerEvent('br_notify:show', 'error', 'ERROR', "הרכב שנבחר אינו משטרתי", 5000, false) -- ESX.ShowHDNotification("ERROR","הרכב שנבחר אינו משטרתי",'error')
 			end
 		end
 	else
-		ESX.ShowHDNotification("ERROR","לא נמצא שום רכב באיזור",'error')
+		TriggerEvent('br_notify:show', 'error', 'ERROR', "לא נמצא שום רכב באיזור", 5000, false) -- ESX.ShowHDNotification("ERROR","לא נמצא שום רכב באיזור",'error')
 	end
 end
 
@@ -1056,7 +1069,7 @@ function revivemenu()
 	}, function(data, menu)
 		local closestPlayer, closestDistance = ESX.Game.GetClosestPlayer()
 		if closestPlayer == -1 or closestDistance > 2.0 then
-			ESX.ShowRGBNotification("error",_U('no_players'))
+			TriggerEvent('br_notify:show', 'error', 'Error', _U('no_players'), 5000, false) -- ESX.ShowRGBNotification("error",_U('no_players'))
 		else
 			local action = data.current.value
 			if action == "revive" then
@@ -1136,19 +1149,19 @@ AddEventHandler("esx_ambulancejob:HeliBed",function()
 	local playerPed = PlayerPedId()
 	local helicopter = GetVehiclePedIsIn(playerPed,false)
 	if(helicopter == 0 or not IsPedInAnyHeli(playerPed)) then
-		ESX.ShowRGBNotification("error","אתה לא בתוך מסוק")
+		TriggerEvent('br_notify:show', 'error', 'Error', "אתה לא בתוך מסוק", 5000, false) -- ESX.ShowRGBNotification("error","אתה לא בתוך מסוק")
 		return
 	end
 	if(GetPedInVehicleSeat(helicopter,-1) ~= playerPed) then
-		ESX.ShowRGBNotification("error",".אתה חייב להיות הטייס בשביל להוציא מיטה")
+		TriggerEvent('br_notify:show', 'error', 'Error', ".אתה חייב להיות הטייס בשביל להוציא מיטה", 5000, false) -- ESX.ShowRGBNotification("error",".אתה חייב להיות הטייס בשביל להוציא מיטה")
 		return
 	end
 	if(helibed) then
-		ESX.ShowRGBNotification("error","כבר הוצאת מיטה עם חבל מהמסוק")
+		TriggerEvent('br_notify:show', 'error', 'Error', "כבר הוצאת מיטה עם חבל מהמסוק", 5000, false) -- ESX.ShowRGBNotification("error","כבר הוצאת מיטה עם חבל מהמסוק")
 		return
 	end
 	if(GetEntityHeightAboveGround(helicopter) < 10.0) then
-		ESX.ShowRGBNotification("error","אתה חייב להיות גבוהה באוויר כדי להוציא מיטה")
+		TriggerEvent('br_notify:show', 'error', 'Error', "אתה חייב להיות גבוהה באוויר כדי להוציא מיטה", 5000, false) -- ESX.ShowRGBNotification("error","אתה חייב להיות גבוהה באוויר כדי להוציא מיטה")
 		return
 	end
 	TriggerEvent("chatMessage","כדי להעיף את המיטה יש ללחוץ G")
@@ -1159,7 +1172,7 @@ AddEventHandler("esx_ambulancejob:HeliBed",function()
 	local coords  = GetEntityCoords(helicopter)
 	local x, y, z = table.unpack(coords)
 	local model = `v_med_emptybed`
-	ESX.ShowRGBNotification("success","מוציא מיטה עם חבל מהמסוק")
+	TriggerEvent('br_notify:show', 'success', 'Success', "מוציא מיטה עם חבל מהמסוק", 5000, false) -- ESX.ShowRGBNotification("success","מוציא מיטה עם חבל מהמסוק")
 	LoadModel(model)
 
 	local obj = CreateObject(model, x, y + 1.0, z - 4.0, true, true,true)
@@ -1224,7 +1237,7 @@ AddEventHandler("esx_ambulancejob:HeliBed",function()
 		if(IsControlJustPressed(0,246)) then
 			local closestPlayer, closestDistance = ESX.Game.GetClosestPlayer(GetEntityCoords(obj))
 			if closestPlayer == -1 or closestDistance > 2.0 then
-				ESX.ShowRGBNotification("error","לא נמצאו שחקנים ליד המיטה")
+				TriggerEvent('br_notify:show', 'error', 'Error', "לא נמצאו שחקנים ליד המיטה", 5000, false) -- ESX.ShowRGBNotification("error","לא נמצאו שחקנים ליד המיטה")
 			else
 				local playerid = GetPlayerServerId(closestPlayer)
 				if playerid ~= 0 then
@@ -1233,10 +1246,10 @@ AddEventHandler("esx_ambulancejob:HeliBed",function()
 							ESX.SEvent("esx_ambulancejob:LoadPlayerToBed",playerid,netid)
 						end
 					else
-						ESX.ShowRGBNotification("error","השחקן שצמוד למיטה לא פצוע")
+						TriggerEvent('br_notify:show', 'error', 'Error', "השחקן שצמוד למיטה לא פצוע", 5000, false) -- ESX.ShowRGBNotification("error","השחקן שצמוד למיטה לא פצוע")
 					end
 				else
-					ESX.ShowRGBNotification("error","לא נמצאו שחקנים ליד המיטה")
+					TriggerEvent('br_notify:show', 'error', 'Error', "לא נמצאו שחקנים ליד המיטה", 5000, false) -- ESX.ShowRGBNotification("error","לא נמצאו שחקנים ליד המיטה")
 				end
 			end
 		end
@@ -1251,7 +1264,7 @@ AddEventHandler("esx_ambulancejob:HeliBed",function()
 				local velocity = GetEntityVelocity(helicopter)
 				SetEntityVelocity(obj,velocity.x,velocity.y,0.0)
 			end
-			ESX.ShowRGBNotification("success",(steady and "מייצב מיטה") or "משחרר מיטה")
+			TriggerEvent('br_notify:show', 'success', 'Success', (steady and "מייצב מיטה") or "משחרר מיטה", 5000, false) -- ESX.ShowRGBNotification("success",(steady and "מייצב מיטה") or "משחרר מיטה")
 		end
 
 		if(steady) then
@@ -1318,7 +1331,7 @@ AddStateBagChangeHandler("bedrope", nil, function(bagName, key, value, _unused, 
     if bagName:sub(1, 7) == "entity:" then
         local ent = GetEntityFromStateBagName(bagName)
         if ent == 0 then Wait(500) ent = GetEntityFromStateBagName(bagName) end
-        if ent == 0 then return end -- Entity does not exist or not valid
+        if ent == 0 then return end
 		if(DoesEntityExist(ent)) then
 			if(GetPedInVehicleSeat(ent,-1) == PlayerPedId()) then return end
 			if(value) then
@@ -1365,12 +1378,12 @@ local lastmission = GetGameTimer()
 
 function EMSBodyMission()
 	if(lastmission and (GetTimeDifference(GetGameTimer(), lastmission) < CoolDownTime)) then
-		ESX.ShowRGBNotification("error",CoolDownMessage,7500)
+		TriggerEvent('br_notify:show', 'error', 'Error', CoolDownMessage, 7500, false) -- ESX.ShowRGBNotification("error",CoolDownMessage,7500)
 		return
 	end
 
 	if(ESX.PlayerData.job.name ~= "ambulance") then
-		ESX.ShowRGBNotification("error",'אתה לא במד"א אין לך גישה למשימה הזאת')
+		TriggerEvent('br_notify:show', 'error', 'Error', 'אתה לא במד"א אין לך גישה למשימה הזאת', 5000, false) -- ESX.ShowRGBNotification("error",'אתה לא במד"א אין לך גישה למשימה הזאת')
 		return
 	end
 
@@ -1387,14 +1400,14 @@ function EMSBodyMission()
     BeginTextCommandSetBlipName('STRING')
     AddTextComponentString("Dead Body")
     EndTextCommandSetBlipName(targetblip)
-    ESX.ShowHelpNotification("Go pickup the dead body at ~HUD_COLOUR_RED~~BLIP_310~~s~.")
-	ESX.ShowRGBNotification("info","התחלת משימת גופות, תגיע לסימון האדום במפה ואז תקבל הנחיות נוספות.",10000)
+    TriggerEvent('br_notify:show', 'info', 'Help', "Go pickup the dead body at ~HUD_COLOUR_RED~~BLIP_310~~s~.", 5000, false) -- ESX.ShowHelpNotification("Go pickup the dead body at ~HUD_COLOUR_RED~~BLIP_310~~s~.")
+	TriggerEvent('br_notify:show', 'info', 'Info', "התחלת משימת גופות, תגיע לסימון האדום במפה ואז תקבל הנחיות נוספות.", 10000, false) -- ESX.ShowRGBNotification("info","התחלת משימת גופות, תגיע לסימון האדום במפה ואז תקבל הנחיות נוספות.",10000)
     SetNewWaypoint(bodycoords.x,bodycoords.y)
 	while #(GetEntityCoords(ped) - vector3(bodycoords)) > 100.0 do
         Wait(500)
         if IsPedInAnyHeli(PlayerPedId()) then
             PlaySoundFrontend(-1,"MP_Flash","WastedSounds",0)
-            ESX.ShowNotification('המשימה נכשלה, אסור להשתמש במסוקים במשימה הזאת')
+            TriggerEvent('br_notify:show', 'info', 'Notification', 'המשימה נכשלה, אסור להשתמש במסוקים במשימה הזאת', 5000, false) -- ESX.ShowNotification('המשימה נכשלה, אסור להשתמש במסוקים במשימה הזאת')
             if(DoesBlipExist(targetblip)) then
                 RemoveBlip(targetblip)
                 targetblip = nil
@@ -1405,7 +1418,7 @@ function EMSBodyMission()
 
 		if(ESX.PlayerData.job.name ~= "ambulance") then
             PlaySoundFrontend(-1,"MP_Flash","WastedSounds",0)
-            ESX.ShowNotification('המשימה נכשלה, אתה לא במד"א יותר או שיצאת מתפקיד')
+            TriggerEvent('br_notify:show', 'info', 'Notification', 'המשימה נכשלה, אתה לא במד"א יותר או שיצאת מתפקיד', 5000, false) -- ESX.ShowNotification('המשימה נכשלה, אתה לא במד"א יותר או שיצאת מתפקיד')
             if(DoesBlipExist(targetblip)) then
                 RemoveBlip(targetblip)
                 targetblip = nil
@@ -1423,7 +1436,7 @@ function EMSBodyMission()
     end
 	if(ESX.PlayerData.job.name ~= "ambulance") then
 		PlaySoundFrontend(-1,"MP_Flash","WastedSounds",0)
-		ESX.ShowNotification('המשימה נכשלה, אתה לא במד"א יותר או שיצאת מתפקיד')
+		TriggerEvent('br_notify:show', 'info', 'Notification', 'המשימה נכשלה, אתה לא במד"א יותר או שיצאת מתפקיד', 5000, false) -- ESX.ShowNotification('המשימה נכשלה, אתה לא במד"א יותר או שיצאת מתפקיד')
 		if(DoesBlipExist(targetblip)) then
 			RemoveBlip(targetblip)
 			targetblip = nil
@@ -1431,13 +1444,13 @@ function EMSBodyMission()
 		bodymission = 0
 		return
 	end
-    ESX.ShowNotification("הגעת לאיזור הגופה")
+    TriggerEvent('br_notify:show', 'info', 'Notification', "הגעת לאיזור הגופה", 5000, false) -- ESX.ShowNotification("הגעת לאיזור הגופה")
 	local netid = lib.callback.await("esx_ambulancejob:server:CreateBody",false,pedModel,randIndex)
 	local deadbody = ESX.Game.VerifyEnt(netid,true)
 	if(not DoesEntityExist(deadbody)) then
 		Citizen.CreateThreadNow(function()
 			PlaySoundFrontend(-1,"MP_Flash","WastedSounds",0)
-			ESX.ShowNotification('תקלה, לא הצלחנו לשגר את הגופה')
+			TriggerEvent('br_notify:show', 'info', 'Notification', 'תקלה, לא הצלחנו לשגר את הגופה', 5000, false) -- ESX.ShowNotification('תקלה, לא הצלחנו לשגר את הגופה')
 		end)
 		if(DoesBlipExist(targetblip)) then
 			RemoveBlip(targetblip)
@@ -1447,11 +1460,7 @@ function EMSBodyMission()
 		return
 	end
     local foundsafecoord, newpos = GetSafeCoordForPed(bodycoords.x, bodycoords.y, bodycoords.z, false, 16)
-    if(foundsafecoord) then
-        -- deadbody = CreatePed(4 , pedModel, newpos.x, newpos.y, newpos.z - 1.0 , bodycoords.w , true, true)
-    else
-        -- deadbody = CreatePed(4 , pedModel, bodycoords.x, bodycoords.y, bodycoords.z - 1.0 , bodycoords.w , true, true)
-    end
+
     SetModelAsNoLongerNeeded(pedModel)
 	if(DoesBlipExist(targetblip)) then
         RemoveBlip(targetblip)
@@ -1483,7 +1492,7 @@ function EMSBodyMission()
     ApplyDamageToPed(deadbody,9999.0,false)
     SetPedSweat(deadbody,100.0)
     ApplyPedDamagePack(deadbody, "Fall", 100, 100)
-	ESX.ShowHelpNotification("You have reached the ~r~Dead Body~w~, now carry it back to the ~r~Hospital~w~")
+	TriggerEvent('br_notify:show', 'info', 'Help', "You have reached the ~r~Dead Body~w~, now carry it back to the ~r~Hospital~w~", 5000, false) -- ESX.ShowHelpNotification("You have reached the ~r~Dead Body~w~, now carry it back to the ~r~Hospital~w~")
 	bodymission = 1
     local carryingBody = 0
 
@@ -1494,7 +1503,7 @@ function EMSBodyMission()
             if(LocalPlayer.state.down or IsEntityDead(PlayerPedId())) then
                 Citizen.CreateThreadNow(function()
                     PlaySoundFrontend(-1,"MP_Flash","WastedSounds",0)
-                    ESX.ShowNotification('.המשימה נכשלה, נהרגת')
+                    TriggerEvent('br_notify:show', 'info', 'Notification', '.המשימה נכשלה, נהרגת', 5000, false) -- ESX.ShowNotification('.המשימה נכשלה, נהרגת')
                 end)
                 if(DoesBlipExist(targetblip)) then
                     RemoveBlip(targetblip)
@@ -1508,7 +1517,7 @@ function EMSBodyMission()
             if IsPedInAnyHeli(PlayerPedId()) then
                 Citizen.CreateThreadNow(function()
                     PlaySoundFrontend(-1,"MP_Flash","WastedSounds",0)
-                    ESX.ShowNotification('המשימה נכשלה, אסור להשתמש במסוקים במשימה הזאת')
+                    TriggerEvent('br_notify:show', 'info', 'Notification', 'המשימה נכשלה, אסור להשתמש במסוקים במשימה הזאת', 5000, false) -- ESX.ShowNotification('המשימה נכשלה, אסור להשתמש במסוקים במשימה הזאת')
                 end)
                 if(DoesBlipExist(targetblip)) then
                     RemoveBlip(targetblip)
@@ -1521,7 +1530,7 @@ function EMSBodyMission()
 
 			if(ESX.PlayerData.job.name ~= "ambulance") then
 				PlaySoundFrontend(-1,"MP_Flash","WastedSounds",0)
-				ESX.ShowNotification('המשימה נכשלה, אתה לא במד"א יותר או שיצאת מתפקיד')
+				TriggerEvent('br_notify:show', 'info', 'Notification', 'המשימה נכשלה, אתה לא במד"א יותר או שיצאת מתפקיד', 5000, false) -- ESX.ShowNotification('המשימה נכשלה, אתה לא במד"א יותר או שיצאת מתפקיד')
 				if(DoesBlipExist(targetblip)) then
 					RemoveBlip(targetblip)
 					targetblip = nil
@@ -1534,7 +1543,7 @@ function EMSBodyMission()
             if(IsPedCuffed(PlayerPedId())) then
                 Citizen.CreateThreadNow(function()
                     PlaySoundFrontend(-1,"MP_Flash","WastedSounds",0)
-                    ESX.ShowNotification('.המשימה נכשלה, נאזקת')
+                    TriggerEvent('br_notify:show', 'info', 'Notification', '.המשימה נכשלה, נאזקת', 5000, false) -- ESX.ShowNotification('.המשימה נכשלה, נאזקת')
                 end)
                 if(DoesBlipExist(targetblip)) then
                     RemoveBlip(targetblip)
@@ -1549,7 +1558,7 @@ function EMSBodyMission()
 				if(not DoesEntityExist(deadbody)) then
                     Citizen.CreateThreadNow(function()
                         PlaySoundFrontend(-1,"MP_Flash","WastedSounds",0)
-                        ESX.ShowNotification('.המשימה נכשלה, הגופה נעלמה')
+                        TriggerEvent('br_notify:show', 'info', 'Notification', '.המשימה נכשלה, הגופה נעלמה', 5000, false) -- ESX.ShowNotification('.המשימה נכשלה, הגופה נעלמה')
                     end)
                     exports.ox_target:removeEntity(deadbody)
                     bodymission = 0
@@ -1594,18 +1603,18 @@ function EMSBodyMission()
 							if(var2) then
 								if ESX.PlayerData.job.name == "ambulance" then
 									ESX.SEvent("esx_ambulancejob:server:BodyMission",var2)
-									ESX.ShowRGBNotification("success","הפקדת את הגופה בהצלחה")
+									TriggerEvent('br_notify:show', 'success', 'Success', "הפקדת את הגופה בהצלחה", 5000, false) -- ESX.ShowRGBNotification("success","הפקדת את הגופה בהצלחה")
 									PlayMissionCompleteAudio("FRANKLIN_BIG_01")
 								StartScreenEffect("SuccessMichael",  3000,  false)
 								else
-									ESX.ShowRGBNotification("error",".אתה לא בעבודה יותר, הפעולה נכשלה")
+									TriggerEvent('br_notify:show', 'error', 'Error', ".אתה לא בעבודה יותר, הפעולה נכשלה", 5000, false) -- ESX.ShowRGBNotification("error",".אתה לא בעבודה יותר, הפעולה נכשלה")
 								end
 							else
-								ESX.ShowNotification(".תקלה, נסה שוב","error")
+								TriggerEvent('br_notify:show', 'error', 'Error', ".תקלה, נסה שוב", 5000, false) -- ESX.ShowNotification(".תקלה, נסה שוב","error")
 							end
 							break
                         else
-                            ESX.ShowRGBNotification("error","אתה צריך לזרוק את הגופה בקבלה של הבית חולים")
+                            TriggerEvent('br_notify:show', 'error', 'Error', "אתה צריך לזרוק את הגופה בקבלה של הבית חולים", 5000, false) -- ESX.ShowRGBNotification("error","אתה צריך לזרוק את הגופה בקבלה של הבית חולים")
                         end
                     end
 
@@ -1627,7 +1636,7 @@ function EMSBodyMission()
                 action = function(entity)
                     local ped = PlayerPedId()
                     if(IsPedInAnyVehicle(ped,false)) then
-                        ESX.ShowRGBNotification("error",".אתה לא יכול לבצע פעולה זו מתוך רכב")
+                        TriggerEvent('br_notify:show', 'error', 'Error', ".אתה לא יכול לבצע פעולה זו מתוך רכב", 5000, false) -- ESX.ShowRGBNotification("error",".אתה לא יכול לבצע פעולה זו מתוך רכב")
                         return
                     end
                     ESX.Game.FaceEntity(ped,entity)
@@ -1666,7 +1675,7 @@ function EMSBodyMission()
                         end
                         TaskPlayAnim(ped, 'missfinale_c2mcs_1', 'fin_c2_mcs_1_camman', 8.0, -8.0, 100000, 49, 0, false, false, false)
                         RemoveAnimDict('missfinale_c2mcs_1')
-                        ESX.ShowHelpNotification("Press ~INPUT_CONTEXT~ To Drop The ~r~Body~w~.")
+                        TriggerEvent('br_notify:show', 'info', 'Help', "Press ~INPUT_CONTEXT~ To Drop The ~r~Body~w~.", 5000, false) -- ESX.ShowHelpNotification("Press ~INPUT_CONTEXT~ To Drop The ~r~Body~w~.")
 						if(firstpickup) then
 							firstpickup = false
 							RemoveBlip(targetblip)
@@ -1679,7 +1688,7 @@ function EMSBodyMission()
 							AddTextComponentString("Drop Off Body")
 							EndTextCommandSetBlipName(targetblip)
 							SetNewWaypoint(Config.BodyMission.morgue.x,Config.BodyMission.morgue.y)
-							ESX.ShowRGBNotification("info","!עכשיו תיקח את הגופה לקבלה של הבית חולים",12000)
+							TriggerEvent('br_notify:show', 'info', 'Info', "!עכשיו תיקח את הגופה לקבלה של הבית חולים", 12000, false) -- ESX.ShowRGBNotification("info","!עכשיו תיקח את הגופה לקבלה של הבית חולים",12000)
 						end
                     end, function()
                         TriggerEvent('animations:client:EmoteCommandStart',{"c"})
@@ -1715,30 +1724,26 @@ end)
 
 RegisterNetEvent("esx_ambulancejob:client:Useemptyblood",function()
 	if(GetInvokingResource()) then return end
-	-- if(ESX.PlayerData.job.name ~= "ambulance") then return end
-	if(not ESX.GetInventoryItem("empty_bloodbag")) then return ESX.ShowRGBNotification("error","אין לך שקית דם עליך") end
+	if(not ESX.GetInventoryItem("empty_bloodbag")) then TriggerEvent('br_notify:show', 'error', 'Error', "אין לך שקית דם עליך", 5000, false) return end -- return ESX.ShowRGBNotification("error","אין לך שקית דם עליך") end
 	local ped = PlayerPedId()
 	if(IsEntityDead(ped) or LocalPlayer.state.down) then return end
 	local closestPlayer, closestDistance = ESX.Game.GetClosestPlayer()
-	-- closestPlayer = PlayerId()
-	-- closestDistance = 0.1
 	if closestPlayer == -1 or closestDistance > 2.0 then
-		ESX.ShowRGBNotification("error","אין שחקן לידך")
+		TriggerEvent('br_notify:show', 'error', 'Error', "אין שחקן לידך", 5000, false) -- ESX.ShowRGBNotification("error","אין שחקן לידך")
 	else
-		-- if on bed else return
 		local targetPed = GetPlayerPed(closestPlayer)
 		if not DoesEntityExist(targetPed) then return end
 
 		if(GetEntityModel(GetEntityAttachedTo(targetPed)) ~= `v_med_emptybed`) then
-			ESX.ShowRGBNotification("error","השחקן חייב לשכב על מיטה כדי שתיקח ממנו דם")
+			TriggerEvent('br_notify:show', 'error', 'Error', "השחקן חייב לשכב על מיטה כדי שתיקח ממנו דם", 5000, false) -- ESX.ShowRGBNotification("error","השחקן חייב לשכב על מיטה כדי שתיקח ממנו דם")
 			return
 		end
 		ESX.Game.FaceEntity(ped,targetPed)
 		local Skillbar = exports['gi-skillbar']:GetSkillbarObject()
 		Skillbar.Start({
-			duration = 900, -- how long the skillbar runs for
-			pos = math.random(5, 15), -- how far to the right the static box is
-			width = math.random(11, 14), -- how wide the static box is
+			duration = 900,
+			pos = math.random(5, 15),
+			width = math.random(11, 14),
 		}, function()
 			local syringeProp = `prop_syringe_01`
 
@@ -1765,24 +1770,34 @@ RegisterNetEvent("esx_ambulancejob:client:Useemptyblood",function()
 			end
 			TaskPlayAnim(ped, dict, 'plyr_rear_takedown_b', 8.0, -8.0, -1, 2, 0, false, false, false)
 			RemoveAnimDict(dict)
-			exports['progressBars']:startUI(4000, "נועץ מזרק")
-			Wait(4000)
-			local coredict = "core"
-			RequestNamedPtfxAsset(coredict)
-			while not HasNamedPtfxAssetLoaded(coredict) do
-				Wait(10)
-			end
-			SetPtfxAssetNextCall(coredict)
-			StartParticleFxNonLoopedOnPedBone("bang_blood",targetPed, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,24818, 2.50, false, false, false)
-			-- StartParticleFxNonLoopedOnEntity("blood_shark_attack",targetPed,0.0,0.0,0.0,0.0,0.0,0.0,2.0,false,false,false)
-			RemoveNamedPtfxAsset(coredict)
-			DeleteObject(syringeObj)
-			StopAnimTask(ped,dict, 'plyr_rear_takedown_b',3.0)
-			ShakeGameplayCam("MEDIUM_EXPLOSION_SHAKE",0.4)
-			ApplyPedDamagePack(targetPed, "SCR_Torture", 1.0, 1.0)
-			ESX.SEvent("esx_ambulancejob:server:bloodinjected",GetPlayerServerId(closestPlayer))
+
+            local bloodDrawProgress = lib.progressBar({
+                duration = 4000,
+                label = "נועץ מזרק",
+                canCancel = false,
+                useWhileDead = false
+            })
+			if bloodDrawProgress then
+                local coredict = "core"
+                RequestNamedPtfxAsset(coredict)
+                while not HasNamedPtfxAssetLoaded(coredict) do
+                    Wait(10)
+                end
+                SetPtfxAssetNextCall(coredict)
+                StartParticleFxNonLoopedOnPedBone("bang_blood",targetPed, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,24818, 2.50, false, false, false)
+                RemoveNamedPtfxAsset(coredict)
+                DeleteObject(syringeObj)
+                StopAnimTask(ped,dict, 'plyr_rear_takedown_b',3.0)
+                ShakeGameplayCam("MEDIUM_EXPLOSION_SHAKE",0.4)
+                ApplyPedDamagePack(targetPed, "SCR_Torture", 1.0, 1.0)
+                ESX.SEvent("esx_ambulancejob:server:bloodinjected",GetPlayerServerId(closestPlayer))
+            else
+                DeleteObject(syringeObj)
+                StopAnimTask(ped,dict, 'plyr_rear_takedown_b',3.0)
+                TriggerEvent('br_notify:show', 'error', 'Error', "פעולת לקיחת דם בוטלה", 5000, false)
+            end
 		end, function()
-			ESX.ShowRGBNotification("error","נכשלת בזריקה")
+			TriggerEvent('br_notify:show', 'error', 'Error', "נכשלת בזריקה", 5000, false) -- ESX.ShowRGBNotification("error","נכשלת בזריקה")
 		end)
 	end
 end)
