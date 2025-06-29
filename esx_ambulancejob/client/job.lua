@@ -1,7 +1,7 @@
 local isBusy = false
 
 local var2
-	
+
 RegisterNetEvent('ElFatahKuds')
 AddEventHandler('ElFatahKuds', function(variable)
     var2 = variable
@@ -145,7 +145,7 @@ function OpenMobileAmbulanceActionsMenu()
 					TriggerServerEvent('esx_ambulancejob:putInVehicle', GetPlayerServerId(closestPlayer))
 				else
 					ESX.ShowRGBNotification("error",".אתה לא בעבודה יותר, הפעולה נכשלה")
-			   	end
+				end
 			elseif action == 'custom_bill' then
 				DoCustomBill()
 			end
@@ -292,18 +292,16 @@ end
 
 
 CreateThread(function()
-
-	exports['qb-target']:AddGlobalPed({
+	exports.ox_target:addGlobalPed({
 		options = {
 		  {
-			type = "client",
-			icon = 'fas fa-ambulance', 
+			icon = 'fas fa-ambulance',
 			label = "שק גופה",
 			action = function(entity)
-				if IsPedAPlayer(entity) then return false end 
-			  	if(not IsEntityDead(entity)) then return false end
+				if IsPedAPlayer(entity) then return false end
+				if(not IsEntityDead(entity)) then return false end
 				if(GetPedType(entity) == 28) then return false end
-			  	BodyBag(entity)
+				BodyBag(entity)
 			end,
 			canInteract = function(entity, distance, data)
 				if IsPedAPlayer(entity) then return false end
@@ -311,7 +309,7 @@ CreateThread(function()
 				if(GetPedType(entity) == 28) then return false end
 				return true
 			end,
-			job = "ambulance"
+			groups = "ambulance"
 		  }
 		},
 		distance = 2.5,
@@ -320,33 +318,29 @@ CreateThread(function()
 	for hospitalNum,hospital in pairs(Config.Hospitals) do
 		if(hospital.FastTravels) then
 			for k,v in ipairs(hospital.FastTravels) do
-				exports["qb-target"]:AddBoxZone("ambulance:teleport"..k, vector3(v.From.x, v.From.y, v.From.z), 1.1, 1.1, {
+				exports.ox_target:addBoxZone({
 					name = "ambulance:teleport"..k,
-					heading = v.From.w,
-					minZ = v.From.z - 1,
-					maxZ = v.From.z + 1,
-					debugPoly = false
-				}, {
+					coords = vector3(v.From.x, v.From.y, v.From.z),
+					size = vector3(1.1, 1.1, (v.From.z + 1) - (v.From.z - 1)), -- Calculate depth based on minZ and maxZ
+					rotation = v.From.w,
+					debug = false,
 					options = {
-					{
-						icon = "fa-solid fa-elevator",
-						label = "מעלית",
-						action = function()
-							if(v.jobs[ESX.PlayerData.job.name]) then
-
-								showElevator(v)
-							else
-								ESX.ShowHDNotification("","No Access to this elevator.","error")
-							end
-						end,
-						job = v.jobs,
-					},
-					},
-					distance = 2.5
+						{
+							icon = "fa-solid fa-elevator",
+							label = "מעלית",
+							action = function()
+								if(v.jobs[ESX.PlayerData.job.name]) then
+									showElevator(v)
+								else
+									ESX.ShowHDNotification("","No Access to this elevator.","error")
+								end
+							end,
+							groups = v.jobs,
+							distance = 2.5
+						}
+					}
 				})
 			end
-
-
 		end
 	end
 end)
@@ -568,13 +562,13 @@ local spawnRadius = 80.0
 function SpawnVehicle(vehhash)
 
 	if(lastcar and (GetTimeDifference(GetGameTimer(), lastcar) < 600000)) then
-		ESX.ShowNotification('אתה יכול להזמין לאמבולנס כל עשר דקות')	
+		ESX.ShowNotification('אתה יכול להזמין לאמבולנס כל עשר דקות')
 		return
 	end
 
 	local vehhash = joaat(vehhash)
 
-	
+
 
 	lastcar = GetGameTimer()
 	local text = "מזמין אמבולנס"
@@ -597,7 +591,7 @@ function SpawnVehicle(vehhash)
 	RequestModel(driverhash)
 	while not HasModelLoaded(vehhash) and not HasModelLoaded(driverhash) do
 		Citizen.Wait(0)
-	end 
+	end
 
 	ESX.TriggerServerCallback("esx_policejob:server:SpawnNayedet",function(netid,pednet)
 		if not netid or type(netid) == "boolean" then
@@ -608,18 +602,18 @@ function SpawnVehicle(vehhash)
 			return
 		end
 		local callback_vehicle = ESX.Game.VerifyEnt(netid)
-		if not callback_vehicle then 
+		if not callback_vehicle then
 			SetModelAsNoLongerNeeded(vehhash)
 			SetModelAsNoLongerNeeded(driverhash)
-			ESX.ShowRGBNotification("error","שיגור הרכב כשל") 
+			ESX.ShowRGBNotification("error","שיגור הרכב כשל")
 		end
 		fizzPed = ESX.Game.VerifyEnt(pednet)
 		if(not DoesEntityExist(fizzPed)) then
-			ESX.ShowRGBNotification("error","שיגור הרכב כשל 2") 
+			ESX.ShowRGBNotification("error","שיגור הרכב כשל 2")
 			return
 		end
 		SetEntityLoadCollisionFlag(callback_vehicle,true)
-		SetVehRadioStation(callback_vehicle, "OFF")			
+		SetVehRadioStation(callback_vehicle, "OFF")
 		ESX.SEvent('esx_policejob:paymoney',500)
 		SetModelAsNoLongerNeeded(vehhash)
 		SetModelAsNoLongerNeeded(driverhash)
@@ -641,7 +635,7 @@ function SpawnVehicle(vehhash)
 		SetVehicleNumberPlateText(callback_vehicle,plate)
 		TriggerEvent('cl_carlock:givekey',plate,false)
 		ESX.SEvent("esx_policejob:CacheVeh",ESX.Math.Trim(GetVehicleNumberPlateText(callback_vehicle)))
-		ClearAreaOfVehicles(GetEntityCoords(callback_vehicle), 4.0, false, false, false, false, false);  
+		ClearAreaOfVehicles(GetEntityCoords(callback_vehicle), 4.0, false, false, false, false, false);
 		SetVehicleOnGroundProperly(callback_vehicle)
 		inVehicle = true
 		TaskVehicle(callback_vehicle)
@@ -657,7 +651,7 @@ function TaskVehicle(vehicle)
 		local pedcoords = GetEntityCoords(PlayerPedId())
 		local plycoords = GetEntityCoords(fizzPed)
 		local dist = GetDistanceBetweenCoords(plycoords, pedcoords.x,pedcoords.y,pedcoords.z, false)
-		
+
 		if dist <= 25.0 then
 			SetVehicleMaxSpeed(vehicle,2.5)
 			TaskVehicleDriveToCoord(fizzPed, vehicle, pedcoords.x, pedcoords.y, pedcoords.z, 10.0, 1, vehhash, 2883621, 5.0, 1)
@@ -690,9 +684,9 @@ function LeaveIt(vehicle)
 	inVehicle = false
 	while IsPedInAnyVehicle(fizzPed, false) do
 		Citizen.Wait(0)
-	end 
+	end
 	SetVehicleMaxSpeed(vehicle,0.0)
-	
+
 	Citizen.Wait(500)
 	TaskWanderStandard(fizzPed, 10.0, 10)
 	left = true
@@ -758,10 +752,10 @@ RegisterCommand('mmivhan',function()
 			local DERUG = "דירוג בחינה מ 1 עד 10"
 
 			local keyboard, var1, var2, var3 , var4, var5 = exports["nh-keyboard"]:Keyboard({
-				header = "הגשת טופס בחינה", 
+				header = "הגשת טופס בחינה",
 				rows = {AGEO,AGEI,ONAME,PASS,DERUG}
 			})
-			
+
 			if keyboard then
 
 				ClearPedTasksImmediately(PlayerPedId())
@@ -803,7 +797,7 @@ function BodyBag(entity)
 	SetModelAsNoLongerNeeded(model)
 	PlaceObjectOnGroundProperly(obj)
 	SetEntityHeading(obj,heading)
-	
+
 	local Minigame = ESX.SpamBar({
 		centermsg = "Spam [E] To Bag Up The Body",
 		score = math.random(1400,1600),
@@ -813,7 +807,7 @@ function BodyBag(entity)
 		timeOut = 12000,
 		reducer = 2,
 	})
-	
+
 	if(Minigame) then
 		if(DoesEntityExist(entity)) then
 			if(#GetActivePlayers() ~= 1) then
@@ -827,7 +821,7 @@ function BodyBag(entity)
 			ESX.Game.DeleteObject(obj)
 			ESX.ShowHDNotification("מגן דוד אדום","כיסית את הגופה בהצלחה","ambulance")
 			if(var2) then
-				if ESX.PlayerData.job.name == "ambulance" then            
+				if ESX.PlayerData.job.name == "ambulance" then
 					ESX.SEvent("esx_ambulancejob:BodyBag",var2)
 				else
 					ESX.ShowRGBNotification("error",".אתה לא בעבודה יותר, הפעולה נכשלה")
@@ -855,7 +849,7 @@ function HealClosestPlayer(closestPlayer,type)
 	local item = type == "small" and "bandage" or "medikit"
 	local neededitem = ESX.GetInventoryItem(item)
 	if(neededitem and neededitem.count > 0) then
-		
+
 		local closestPlayerPed = GetPlayerPed(closestPlayer)
 		if not IsPedDeadOrDying(closestPlayerPed) and not LocalPlayer.state.down then
 			local playerPed = PlayerPedId()
@@ -919,7 +913,7 @@ function ReviveClosestPlayer(closestPlayer)
 				playanim = reviveanim,
 				keepanim = true,
 			})
-		
+
 			if(Minigame) then
 				ESX.ShowHDNotification("מגן דוד אדום","ביצעת את ההחייאה בהצלחה","ambulance")
 				local playerPed = PlayerPedId()
@@ -977,10 +971,10 @@ function DoCustomBill()
 	if(ESX.PlayerData.job.grade >= 3) then
 
 		local keyboard, reason, amount = exports["nh-keyboard"]:Keyboard({
-			header = "דוח ניהולי", 
+			header = "דוח ניהולי",
 			rows = {"סיבת דוח", "כמות כסף"}
 		})
-		
+
 		if keyboard then
 
 			local amount = tonumber(amount)
@@ -1004,7 +998,7 @@ function DoCustomBill()
 						invoice.action = "createInvoice"
 						invoice.society = "society_ambulance"
 						invoice.society_name = 'מד"א'
-		
+
 						TriggerServerEvent("esx_billing:CreateInvoice", invoice)
 					end
 				end
@@ -1013,7 +1007,7 @@ function DoCustomBill()
 			end
 		end
 
-		
+
 	else
 		ESX.ShowNotification('רק דרגת מג"ר ומעלה יכולים לבצע פעולה זו')
 	end
@@ -1098,7 +1092,7 @@ function revivemenu()
 					ESX.SEvent("esx_ambulancejob:server:dorespawn",GetPlayerServerId(closestPlayer))
 					ExecuteCommand("e c")
 					end
-					
+
 				end)
 			end
 		end
@@ -1166,7 +1160,7 @@ AddEventHandler("esx_ambulancejob:HeliBed",function()
 	local x, y, z = table.unpack(coords)
 	local model = `v_med_emptybed`
 	ESX.ShowRGBNotification("success","מוציא מיטה עם חבל מהמסוק")
-	LoadModel(model)	
+	LoadModel(model)
 
 	local obj = CreateObject(model, x, y + 1.0, z - 4.0, true, true,true)
 	while not DoesEntityExist(obj) do
@@ -1194,13 +1188,13 @@ AddEventHandler("esx_ambulancejob:HeliBed",function()
 		Wait(500)
 		ESX.SEvent("esx_ambulancejob:server:helirope",VehToNet(helicopter),netid,true)
 	end)
-	
+
 	local steady = false
 	while true do
 		Wait(0)
 		SetEntityRotation(obj,0.0,0.0,GetEntityHeading(helicopter),0.0,false)
 		SetEntityMaxSpeed(obj,GetEntitySpeed(helicopter) + 5.0)
-		
+
 
 		local heightabove = GetEntityHeightAboveGround(obj)
 		if(heightabove < 1.0) then
@@ -1246,7 +1240,7 @@ AddEventHandler("esx_ambulancejob:HeliBed",function()
 				end
 			end
 		end
-		
+
 		if(IsControlJustPressed(0,74)) then
 			steady = not steady
 			if(steady) then
@@ -1466,19 +1460,19 @@ function EMSBodyMission()
 	local id = PedToNet(deadbody)
     SetNetworkIdCanMigrate(id,false)
     targetblip = AddBlipForEntity(deadbody)
-    
+
     SetBlipSprite(targetblip,84)
     SetBlipAsShortRange(targetblip, true)
     SetBlipColour(targetblip, 1)
     SetBlipHighDetail(targetblip, true)
     while not NetworkHasControlOfEntity(deadbody) do
         Wait(400)
-        if(not DoesEntityExist(deadbody)) then 
+        if(not DoesEntityExist(deadbody)) then
             if(DoesBlipExist(targetblip)) then
                 RemoveBlip(targetblip)
                 targetblip = nil
             end
-            exports['qb-target']:RemoveTargetEntity(deadbody)
+            exports.ox_target:removeEntity(deadbody)
             bodymission = 0
             return
         end
@@ -1506,7 +1500,7 @@ function EMSBodyMission()
                     RemoveBlip(targetblip)
                     targetblip = nil
                 end
-                exports['qb-target']:RemoveTargetEntity(deadbody)
+                exports.ox_target:removeEntity(deadbody)
                 bodymission = 0
                 return
             end
@@ -1520,7 +1514,7 @@ function EMSBodyMission()
                     RemoveBlip(targetblip)
                     targetblip = nil
                 end
-                exports['qb-target']:RemoveTargetEntity(deadbody)
+                exports.ox_target:removeEntity(deadbody)
                 bodymission = 0
                 return
             end
@@ -1532,6 +1526,7 @@ function EMSBodyMission()
 					RemoveBlip(targetblip)
 					targetblip = nil
 				end
+                exports.ox_target:removeEntity(deadbody)
 				bodymission = 0
 				return
 			end
@@ -1545,7 +1540,7 @@ function EMSBodyMission()
                     RemoveBlip(targetblip)
                     targetblip = nil
                 end
-                exports['qb-target']:RemoveTargetEntity(deadbody)
+                exports.ox_target:removeEntity(deadbody)
                 bodymission = 0
                 return
             end
@@ -1556,7 +1551,7 @@ function EMSBodyMission()
                         PlaySoundFrontend(-1,"MP_Flash","WastedSounds",0)
                         ESX.ShowNotification('.המשימה נכשלה, הגופה נעלמה')
                     end)
-                    exports['qb-target']:RemoveTargetEntity(deadbody)
+                    exports.ox_target:removeEntity(deadbody)
                     bodymission = 0
                     return
                 end
@@ -1582,7 +1577,7 @@ function EMSBodyMission()
                         Wait(2000)
 						local deadcoords = GetEntityCoords(deadbody)
                         if #(deadcoords - Config.BodyMission.morgue) < 20.0 then
-							exports['qb-target']:RemoveTargetEntity(deadbody)
+							exports.ox_target:removeEntity(deadbody)
 							bodymission = 0
 							if(DoesBlipExist(targetblip)) then
 								RemoveBlip(targetblip)
@@ -1590,18 +1585,18 @@ function EMSBodyMission()
 							end
 							while not NetworkHasControlOfEntity(deadbody) do
 								Wait(400)
-								if(not DoesEntityExist(deadbody)) then 
+								if(not DoesEntityExist(deadbody)) then
 									return
 								end
 								NetworkRequestControlOfEntity(deadbody)
 							end
 							DeletePed(deadbody)
 							if(var2) then
-								if ESX.PlayerData.job.name == "ambulance" then            
+								if ESX.PlayerData.job.name == "ambulance" then
 									ESX.SEvent("esx_ambulancejob:server:BodyMission",var2)
 									ESX.ShowRGBNotification("success","הפקדת את הגופה בהצלחה")
 									PlayMissionCompleteAudio("FRANKLIN_BIG_01")
-        							StartScreenEffect("SuccessMichael",  3000,  false)
+								StartScreenEffect("SuccessMichael",  3000,  false)
 								else
 									ESX.ShowRGBNotification("error",".אתה לא בעבודה יותר, הפעולה נכשלה")
 								end
@@ -1624,7 +1619,7 @@ function EMSBodyMission()
     end)
     Wait(2000)
 	local firstpickup = true
-    exports['qb-target']:AddTargetEntity(deadbody, {
+    exports.ox_target:addTargetEntity(deadbody, {
         options = {
             {
                 icon = "fas fa-hand",
@@ -1638,7 +1633,7 @@ function EMSBodyMission()
                     ESX.Game.FaceEntity(ped,entity)
                     TriggerEvent('animations:client:EmoteCommandStart',{"medic"})
                     Wait(2000)
-                
+
                     ESX.Game.Progress("pickupems_body", "מרים את הגופה", 5000, false, false, {
                         disableMovement = true,
                         disableCarMovement = true,
@@ -1648,12 +1643,12 @@ function EMSBodyMission()
                         TriggerEvent('animations:client:EmoteCommandStart',{"c"})
 						while not NetworkHasControlOfEntity(deadbody) do
 							Wait(400)
-							if(not DoesEntityExist(deadbody)) then 
+							if(not DoesEntityExist(deadbody)) then
 								if(DoesBlipExist(targetblip)) then
 									RemoveBlip(targetblip)
 									targetblip = nil
 								end
-								exports['qb-target']:RemoveTargetEntity(deadbody)
+								exports.ox_target:removeEntity(deadbody)
 								bodymission = 0
 								return
 							end
@@ -1693,7 +1688,7 @@ function EMSBodyMission()
             },
         },
         distance = 2.0
-    })    
+    })
 end
 
 AddStateBagChangeHandler("IsDeadBody",nil,function(bagName,key,value,_,rep)
@@ -1702,7 +1697,7 @@ AddStateBagChangeHandler("IsDeadBody",nil,function(bagName,key,value,_,rep)
 
     if not entity then return end
 	local timer = GetGameTimer()
-	while NetworkGetEntityOwner(entity) ~= cache.playerId do 
+	while NetworkGetEntityOwner(entity) ~= cache.playerId do
 		Wait(0)
 		if((GetGameTimer() - timer) > 15000) then
 			return
@@ -1746,7 +1741,7 @@ RegisterNetEvent("esx_ambulancejob:client:Useemptyblood",function()
 			width = math.random(11, 14), -- how wide the static box is
 		}, function()
 			local syringeProp = `prop_syringe_01`
-		
+
 			local syringeBone = 28422
 			local syringeOffset = vector3(0, 0, 0)
 			local syringeRot = vector3(50.0, -70.0, 0.0)
@@ -1797,7 +1792,7 @@ RegisterNetEvent("esx_ambulancejob:client:onBloodBag",function()
 	local ped = PlayerPedId()
 
 	RequestAnimSet("move_m@drunk@slightlydrunk")
-	
+
 	while not HasAnimSetLoaded("move_m@drunk@slightlydrunk") do
 		Citizen.Wait(0)
 	end
